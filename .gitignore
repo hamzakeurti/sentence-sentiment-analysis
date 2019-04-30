@@ -1,0 +1,14 @@
+Untitled.ipynb
+.ipynb_checkpoints/Untitled-checkpoint.ipynb
+data/glove.6B.300d.txt
+data/stanfordSentimentTreebank/SOStr.txt
+data/stanfordSentimentTreebank/STree.txt
+data/stanfordSentimentTreebank/README.txt
+data/stanfordSentimentTreebank/original_rt_snippets.txt
+data/stanfordSentimentTreebank/datasetSplit.txt
+data/stanfordSentimentTreebank/dictionary.txt
+data/stanfordSentimentTreebank/sentiment_labels.txt
+data/trainDevTestTrees_PTB/dev.txt
+data/trainDevTestTrees_PTB/test.txt
+data/trainDevTestTrees_PTB/train.txt
+data/stanfordSentimentTreebank/datasetSentences.txt
