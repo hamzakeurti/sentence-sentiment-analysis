@@ -12,4 +12,5 @@ data/trainDevTestTrees_PTB/dev.txt
 data/trainDevTestTrees_PTB/test.txt
 data/trainDevTestTrees_PTB/train.txt
 data/stanfordSentimentTreebank/datasetSentences.txt
+src/test.ipynb
 .vscode/settings.json
