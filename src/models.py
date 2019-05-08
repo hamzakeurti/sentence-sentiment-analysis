@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 
 
-class Model(nn.Module):
-    def __init__(self, embedding_dim, hidden_size, num_levels, num_layers=1, bidirectional=True, dropout=0, eps=1e-5,
-                 momentum=0.9):
+class RNN_Model(nn.Module):
+    def __init__(self, embedding_dim, hidden_size, num_labels, num_layers=1, bidirectional=True, dropout=0):
+        super(RNN_Model, self).__init__()
         self.hidden_size = hidden_size
         self.rnn = nn.RNN(
             input_size=embedding_dim,
@@ -17,18 +17,22 @@ class Model(nn.Module):
         )
         self.readout = nn.Linear(
             in_features=hidden_size * (1 + bidirectional),
-            out_features=num_levels
+            out_features=num_labels
         )
 
     def forward(self, sentences):
-        lengths = np.array([len(sentence) for sentence in sentences])
+        lengths = torch.tensor([len(sentence) for sentence in sentences])
 
         padded_sentences = nn.utils.rnn.pad_sequence(sentences, batch_first=True)
 
         packed_sentences = nn.utils.rnn.pack_padded_sequence(padded_sentences, lengths=lengths, batch_first=True)
 
-        rnn_output, hidden = self.rnn(packed_sentences)
+        rnn_output, hidden = self.rnn(packed_sentences.float())
 
-        unpacked_output = nn.utils.rnn.pad_packed_sequence(rnn_output, batch_first=True)
+        unpacked_output, size_list = nn.utils.rnn.pad_packed_sequence(rnn_output, batch_first=True)
 
-        return self.readout(unpacked_output)
+        I = torch.LongTensor(lengths).view(-1, 1, 1)
+        I = I.expand(unpacked_output.size(0), 1, unpacked_output.size(-1)) - 1
+        last_output = unpacked_output.gather(dim=1, index=I).squeeze(1)
+
+        return self.readout(last_output)
