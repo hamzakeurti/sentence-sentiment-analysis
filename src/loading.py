@@ -34,11 +34,11 @@ def parse_tree(tree_file):
     with open(tree_file, 'r', encoding="utf8") as f:
         for line in f:
             found = re.findall(RE_WORD, line)
-            if (not found):
+            if not found:
                 continue
             sentences.append(np.char.lower(found))
             labels.append(int(line[1]))
-    return sentences, labels
+    return np.array(sentences), labels
 
 
 def lists_to_tensors(sentences, labels, embeddings):
