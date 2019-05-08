@@ -38,7 +38,7 @@ def parse_tree(tree_file):
                 continue
             sentences.append(np.char.lower(found))
             labels.append(int(line[1]))
-    return np.array(sentences), labels
+    return np.array(sentences), np.array(labels)
 
 
 def lists_to_tensors(sentences, labels, embeddings):
