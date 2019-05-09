@@ -14,7 +14,7 @@ from utils import LOG_INFO
 embeddings = loading.load_glove_embedding(loading.GLOVE)
 train_sentences, train_labels = loading.parse_tree(loading.TREES_T)
 
-test_sentences, test_labels = loading.parse_tree(loading.TREES_T)
+test_sentences, test_labels = loading.parse_tree(loading.TREES_S)
 
 TRAIN_BATCH_SIZE = 100
 TEST_BATCH_SIZE = 100
@@ -63,7 +63,7 @@ model = models.RNN_Model(
 optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MM, weight_decay=WD)
 
 
-def train(model, optimizer, epoch, sentences, labels):
+def train(model, optimizer, epoch, sentences, labels, verbosity = True):
     model.train()
     loss_list = []
     acc_list = []
@@ -79,16 +79,18 @@ def train(model, optimizer, epoch, sentences, labels):
         acc = pred.eq(target.view_as(pred)).float().mean()
         acc_list.append(acc.item())
         if batch_idx % LOG_INTERVAL == 0:
-            msg = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tAvg Loss: {:.4f}\tAvg Acc: {:.4f}'.format(
-                epoch, batch_idx * len(data), len(sentences),
-                       100. * batch_idx / len(sentences), np.mean(loss_list), np.mean(acc_list))
-            LOG_INFO(msg)
-            loss_list.clear()
-            acc_list.clear()
+            if verbosity:
+                msg = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tAvg Loss: {:.4f}\tAvg Acc: {:.4f}'.format(
+                    epoch, batch_idx * len(data), len(sentences),
+                           100. * batch_idx / len(sentences), np.mean(loss_list), np.mean(acc_list))
+                LOG_INFO(msg)
+                loss_list.clear()
+                acc_list.clear()
         batch_idx += 1
+    return loss_list,acc_list
 
 
-def test(model, sentences, labels):
+def test(model, sentences, labels,verbosity = True):
     model.eval()
     test_loss = 0
     correct = 0
@@ -100,13 +102,20 @@ def test(model, sentences, labels):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(sentences)
-
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
-        test_loss, correct, len(sentences),
-        100. * correct / len(sentences)))
+    if verbosity:
+        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
+            test_loss, correct, len(sentences),
+            100. * correct / len(sentences)))
+    return test_loss, correct / len(sentences)
 
 
 if __name__ == "__main__":
     for epoch in range(1, EPOCHS + 1):
-        train(model, optimizer, epoch, train_sentences, train_labels)
-        test(model, test_sentences, test_labels)
+        train(model=model,
+              optimizer=optimizer,
+              epoch=epoch,
+              sentences=train_sentences,
+              labels=train_labels)
+        test(model = model,
+            sentences = test_sentences,
+            labels = test_labels)
